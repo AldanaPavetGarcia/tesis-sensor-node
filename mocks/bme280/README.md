@@ -16,8 +16,10 @@ En el sistema real, el recorrido será:
 BME280 ── I2C ──> ESP32 ── Wi-Fi + MQTT ──> Mosquitto ──> consumer
 ```
 
-El mock y el firmware publican el mismo contrato JSON y el mismo tópico. El
-campo `producer` permite distinguir `mock_bme280` de `esp32_bme280`.
+El mock reproduce el contrato JSON que deberá utilizar también el firmware
+real. El campo `source` indica si el dato es real o simulado (`real` o `mock`),
+mientras que `producer` identifica quién produce la medición, por ejemplo
+`bme280`.
 
 > No ejecutar el mock y el ESP32 real con el mismo `NODE_ID` durante una prueba
 > simple, salvo que se quiera recibir ambas fuentes simultáneamente.
@@ -69,7 +71,7 @@ Resultado esperado:
 
 ```text
 .... [100%]
-4 passed
+5 passed
 ```
 
 ## 5. Demostración en tres terminales
@@ -119,7 +121,7 @@ python -m src.main
 Se publican:
 
 - Mediciones: `meteo/sensor/<node_id>`.
-- Estado/LWT: `system/status/<node_id>`.
+- Estado/LWT: `meteo/status/<node_id>`.
 
 Para detener el mock:
 
@@ -133,8 +135,8 @@ Ctrl + C
 {
   "node_id": "lit-cordoba-01",
   "timestamp": "2026-08-06T13:20:00Z",
-  "source": "local_sensor",
-  "producer": "mock_bme280",
+  "source": "mock",
+  "producer": "bme280",
   "schema_version": "1.0",
   "metrics": {
     "temperature_c": 22.5,
@@ -145,9 +147,10 @@ Ctrl + C
 }
 ```
 
-El contrato sigue siendo provisional hasta cerrar ADR-01 con el equipo.
-`src/payload_builder.py` concentra el formato para poder modificarlo sin tocar
-la generación ni la comunicación MQTT.
+El contrato ambiental utiliza `source` para distinguir datos reales de
+simulados y `producer` para identificar quién produce la medición.
+`src/payload_builder.py` concentra el formato del payload para mantener esta
+convención centralizada.
 
 ## 7. Qué demuestra esta ejecución
 

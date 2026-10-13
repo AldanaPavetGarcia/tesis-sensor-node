@@ -46,8 +46,19 @@ Desde PlatformIO:
 - Upload: icono de flecha.
 - Serial Monitor: icono de enchufe/monitor, a 115200 baud.
 
-## Contrato pendiente
+## Contrato ambiental
 
-El payload `envelope + metrics` está aislado en `src/PayloadBuilder.cpp`. Es provisional hasta confirmar con Aldana el ADR-01 actualizado.
+Las mediciones ambientales utilizan un envelope común con:
 
-El tópico de estado se conserva como `system/status/<node_id>`, tal como indicó Aldana. Queda pendiente decidir si necesitará un sufijo de componente para evitar que diferentes productores sobrescriban el mismo mensaje retained.
+- `source`: naturaleza del dato (`real` o `mock`).
+- `producer`: componente u origen que produce el dato (`bme280`, `open_meteo`, etc.).
+- `node_id`: nodo donde se genera o asocia la medición.
+- `timestamp`: instante UTC de la medición.
+- `schema_version`: versión del contrato.
+- `metrics`: valores medidos.
+
+Los datos del BME280 se publican en `meteo/sensor/<node_id>`.
+
+El estado y LWT del módulo ambiental se publican en `meteo/status/<node_id>`.
+
+De esta forma, el estado ambiental queda separado del estado del módulo Starlink y los mensajes retained no se sobrescriben entre dominios.
