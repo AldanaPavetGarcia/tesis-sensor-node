@@ -19,8 +19,7 @@ void MqttService::begin(const String& lastWillPayload) {
   resetBackoff();
 }
 
-void MqttService::loop(bool networkAvailable,
-                       const String& timestampIso8601) {
+void MqttService::loop(bool networkAvailable) {
   mqttClient_.loop();
 
   if (!networkAvailable) {
@@ -29,7 +28,7 @@ void MqttService::loop(bool networkAvailable,
 
   if (!mqttClient_.connected()) {
     if (millis() >= nextAttemptAtMs_) {
-      attemptConnection(timestampIso8601);
+      attemptConnection();
     }
     return;
   }
@@ -37,12 +36,12 @@ void MqttService::loop(bool networkAvailable,
   resetBackoff();
 
   if (millis() - lastHeartbeatAtMs_ >= AppConfig::HEARTBEAT_INTERVAL_MS) {
-    publishStatus("online", timestampIso8601);
+    publishStatus("online");
     lastHeartbeatAtMs_ = millis();
   }
 }
 
-bool MqttService::connected() const {
+bool MqttService::connected() {
   return mqttClient_.connected();
 }
 
@@ -68,7 +67,7 @@ bool MqttService::publishMeasurement(const String& payload) {
   return published;
 }
 
-void MqttService::attemptConnection(const String& timestampIso8601) {
+void MqttService::attemptConnection() {
   Serial.printf("[MQTT] Conectando a %s:%u...\n", AppConfig::MQTT_HOST,
                 AppConfig::MQTT_PORT);
 
@@ -84,7 +83,7 @@ void MqttService::attemptConnection(const String& timestampIso8601) {
   if (connectedNow) {
     Serial.println("[MQTT] Conectado al broker Mosquitto.");
     resetBackoff();
-    publishStatus("online", timestampIso8601);
+    publishStatus("online");
     lastHeartbeatAtMs_ = millis();
   } else {
     Serial.printf("[MQTT] Conexión fallida. Error=%d, retorno=%d\n",
@@ -94,9 +93,8 @@ void MqttService::attemptConnection(const String& timestampIso8601) {
   }
 }
 
-void MqttService::publishStatus(const char* status,
-                                const String& timestampIso8601) {
-  const String payload = PayloadBuilder::buildStatus(status, timestampIso8601);
+void MqttService::publishStatus(const char* status) {
+  const String payload = PayloadBuilder::buildStatus(status);
 
   // retained=true: un nuevo suscriptor puede conocer inmediatamente el último estado.
   mqttClient_.publish(statusTopic_, payload, true, 1);

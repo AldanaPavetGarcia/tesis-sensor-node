@@ -9,6 +9,6 @@ namespace PayloadBuilder {
 String buildMeasurement(const SensorReading& reading,
                         const String& timestampIso8601);
 
-String buildStatus(const char* status, const String& timestampIso8601);
+String buildStatus(const char* status);
 
 }  // namespace PayloadBuilder

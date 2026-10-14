@@ -25,9 +25,9 @@ void setup() {
   sensorReady = sensor.begin();
   wifiService.begin();
 
-  // El LWT se registra al conectarse. Su timestamp queda en null porque el ESP32
-  // no puede saber por anticipado el instante exacto de una caída abrupta.
-  const String lastWill = PayloadBuilder::buildStatus("offline", "");
+  // El LWT permite que el broker marque el nodo ambiental como offline
+  // si el ESP32 desaparece sin desconectarse correctamente.
+  const String lastWill = PayloadBuilder::buildStatus("offline");
   mqttService.begin(lastWill);
 
   // Permite intentar la primera medición inmediatamente.
@@ -37,7 +37,7 @@ void setup() {
 void loop() {
   wifiService.loop();
   timeService.loop(wifiService.connected());
-  mqttService.loop(wifiService.connected(), timeService.nowIso8601());
+  mqttService.loop(wifiService.connected());
 
   if (millis() - lastSampleAtMs >= AppConfig::SAMPLE_INTERVAL_MS) {
     lastSampleAtMs = millis();

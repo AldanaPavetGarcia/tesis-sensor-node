@@ -18,10 +18,9 @@ inline constexpr char MQTT_CLIENT_ID[] = "esp32-bme280-lit-cordoba-01";
 inline constexpr char MQTT_HOST[] = "192.168.1.10";
 inline constexpr uint16_t MQTT_PORT = 1883;
 
-// Contrato MQTT actual. El payload está centralizado en PayloadBuilder.cpp
-// para poder modificarlo fácilmente cuando el equipo congele el esquema.
+// Contrato MQTT ambiental.
 inline constexpr char SENSOR_TOPIC_PREFIX[] = "meteo/sensor/";
-inline constexpr char STATUS_TOPIC_PREFIX[] = "system/status/";
+inline constexpr char STATUS_TOPIC_PREFIX[] = "meteo/status/";
 
 // El SRS define 60 segundos por defecto.
 inline constexpr uint32_t SAMPLE_INTERVAL_MS = 60'000;

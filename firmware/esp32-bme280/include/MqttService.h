@@ -7,14 +7,14 @@
 class MqttService {
  public:
   void begin(const String& lastWillPayload);
-  void loop(bool networkAvailable, const String& timestampIso8601);
+  void loop(bool networkAvailable);
 
-  bool connected() const;
+  bool connected();
   bool publishMeasurement(const String& payload);
 
  private:
-  void attemptConnection(const String& timestampIso8601);
-  void publishStatus(const char* status, const String& timestampIso8601);
+  void attemptConnection();
+  void publishStatus(const char* status);
   void scheduleNextAttempt();
   void resetBackoff();
 
